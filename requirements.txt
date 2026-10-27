@@ -1,0 +1,13 @@
+# Motor de cálculo existente (main4.py)
+wntr>=1.4
+deap>=1.4
+numpy
+# Interface e CAD
+PySide6>=6.6
+ezdxf>=1.3
+# Tabelas, gráficos e exportação
+pandas
+matplotlib
+openpyxl
+# Testes
+pytest

@@ -1,0 +1,99 @@
+[TITLE]
+Rede de exemplo - malha por gravidade
+
+[JUNCTIONS]
+;ID	Elev	Demand	Pattern
+J1	66	2		;
+J2	64	3		;
+J3	61	2.5		;
+J4	63	3.5		;
+J5	60	4		;
+J6	57	3		;
+J7	60	2.5		;
+J8	56	3		;
+J9	52	4.5		;
+
+[RESERVOIRS]
+;ID	Head	Pattern
+R1	92		;
+
+[TANKS]
+;ID	Elevation	InitLevel	MinLevel	MaxLevel	Diameter	MinVol	VolCurve	Overflow
+
+[PIPES]
+;ID	Node1	Node2	Length	Diameter	Roughness	MinorLoss	Status
+P1	R1	J1	400	250	140	0	Open	;
+P2	J1	J2	200	150	140	0	Open	;
+P3	J1	J4	150	150	140	0	Open	;
+P4	J2	J3	200	150	140	0	Open	;
+P5	J2	J5	150	150	140	0	Open	;
+P6	J3	J6	150	150	140	0	Open	;
+P7	J4	J5	200	150	140	0	Open	;
+P8	J4	J7	150	150	140	0	Open	;
+P9	J5	J6	200	150	140	0	Open	;
+P10	J5	J8	150	150	140	0	Open	;
+P11	J6	J9	150	150	140	0	Open	;
+P12	J7	J8	200	150	140	0	Open	;
+P13	J8	J9	200	150	140	0	Open	;
+
+[PUMPS]
+;ID	Node1	Node2	Parameters
+
+[VALVES]
+;ID	Node1	Node2	Diameter	Type	Setting	MinorLoss
+
+[DEMANDS]
+;Junction	Demand	Pattern	Category
+
+[STATUS]
+;ID	Status/Setting
+
+[EMITTERS]
+;Junction	Coefficient
+
+[PATTERNS]
+;ID	Multipliers
+
+[CURVES]
+;ID	X-Value	Y-Value
+
+[CONTROLS]
+
+[TIMES]
+Duration	0:00
+Hydraulic Timestep	1:00
+Pattern Timestep	1:00
+Report Timestep	1:00
+Start ClockTime	0:00
+
+[OPTIONS]
+Units	LPS
+Headloss	H-W
+Trials	200
+Accuracy	0.001
+Demand Multiplier	1
+Viscosity	1
+Specific Gravity	1
+
+[REPORT]
+Status	No
+Summary	No
+
+[COORDINATES]
+;Node	X-Coord	Y-Coord
+R1	349750	7400450
+J1	350000	7400300
+J2	350200	7400300
+J3	350400	7400300
+J4	350000	7400150
+J5	350200	7400150
+J6	350400	7400150
+J7	350000	7400000
+J8	350200	7400000
+J9	350400	7400000
+
+[VERTICES]
+;Link	X-Coord	Y-Coord
+P1	349750	7400300
+
+[END]

@@ -1,0 +1,107 @@
+[TITLE]
+Rede de exemplo - período estendido
+
+[JUNCTIONS]
+;ID	Elev	Demand	Pattern
+SUCCAO	18	0		;
+N1	30	3	CONSUMO	;
+N2	28	4	CONSUMO	;
+N3	26	3	CONSUMO	;
+N4	25	5	CONSUMO	;
+N5	22	2	CONSUMO	;
+JUSANTE_B	19	0		;
+ZONA_BAIXA	10	1.5	CONSUMO	;
+
+[RESERVOIRS]
+;ID	Head	Pattern
+POCO	20		;
+
+[TANKS]
+;ID	Elevation	InitLevel	MinLevel	MaxLevel	Diameter	MinVol	VolCurve	Overflow
+RES_ELEV	55	3	0.5	6	12	0	;
+
+[PIPES]
+;ID	Node1	Node2	Length	Diameter	Roughness	MinorLoss	Status
+SUC	POCO	SUCCAO	100	200	130	0	Open	;
+RECALQUE	JUSANTE_B	RES_ELEV	350	150	130	0	Open	;
+SAIDA	RES_ELEV	N1	206.1553	200	130	0	Open	;
+D1	N1	N2	200	100	140	0	Open	;
+D2	N1	N3	200	100	140	0	Open	;
+D3	N2	N4	200	100	140	0	Open	;
+D4	N3	N4	200	100	140	0	Open	;
+D5	N4	N5	223.6068	100	140	0	Open	;
+D6	N2	N5	223.6068	100	140	0	Open	;
+
+[PUMPS]
+;ID	Node1	Node2	Parameters
+B1	SUCCAO	JUSANTE_B	HEAD CB1	;
+
+[VALVES]
+;ID	Node1	Node2	Diameter	Type	Setting	MinorLoss
+VRP1	N5	ZONA_BAIXA	75	PRV	30	0	;
+
+[DEMANDS]
+;Junction	Demand	Pattern	Category
+
+[STATUS]
+;ID	Status/Setting
+
+[EMITTERS]
+;Junction	Coefficient
+
+[PATTERNS]
+;ID	Multipliers
+CONSUMO	0.6	0.5	0.5	0.5	0.6	0.8
+CONSUMO	1.1	1.4	1.5	1.4	1.3	1.2
+CONSUMO	1.2	1.2	1.1	1.1	1.2	1.3
+CONSUMO	1.4	1.3	1.1	0.9	0.8	0.7
+
+[CURVES]
+;ID	X-Value	Y-Value
+;PUMP: CB1
+CB1	0	60
+CB1	20	52
+CB1	40	30
+
+[CONTROLS]
+LINK B1 CLOSED IF NODE RES_ELEV ABOVE 5.5
+LINK B1 OPEN IF NODE RES_ELEV BELOW 2
+
+[TIMES]
+Duration	24:00
+Hydraulic Timestep	1:00
+Pattern Timestep	1:00
+Report Timestep	1:00
+Start ClockTime	0:00
+
+[OPTIONS]
+Units	LPS
+Headloss	H-W
+Trials	200
+Accuracy	0.001
+Demand Multiplier	1
+Viscosity	1
+Specific Gravity	1
+
+[REPORT]
+Status	No
+Summary	No
+
+[COORDINATES]
+;Node	X-Coord	Y-Coord
+POCO	349600	7400000
+SUCCAO	349700	7400000
+RES_ELEV	350000	7400200
+N1	350200	7400150
+N2	350400	7400150
+N3	350200	7399950
+N4	350400	7399950
+N5	350600	7400050
+JUSANTE_B	349850	7400000
+ZONA_BAIXA	350700	7399850
+
+[VERTICES]
+;Link	X-Coord	Y-Coord
+RECALQUE	349850	7400200
+
+[END]

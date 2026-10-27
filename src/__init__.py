@@ -1,0 +1,1 @@
+"""HidroPy — simulador hidráulico CAD."""

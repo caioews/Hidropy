@@ -1,0 +1,346 @@
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; }
+  h1 { color: #0ABDDB; font-size: 22pt; margin-bottom: 0; }
+  h2 { color: #0ABDDB; font-size: 14pt; margin-top: 22px; }
+  h3 { font-size: 11pt; margin-top: 14px; }
+  table { border-collapse: collapse; margin-top: 6px; margin-bottom: 6px; }
+  td, th { border: 1px solid #8a8a8a; padding: 3px 7px; }
+  th { background-color: #0ABDDB; color: #ffffff; }
+  .sub { font-size: 11pt; }
+  .nota { font-style: italic; }
+  code { font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+
+<h1>HidroPy</h1>
+<p class="sub">Simulador hidráulico baseado em Python — manual do usuário</p>
+<p>Desenvolvido por <b>Caio Henrique de Oliveira Nascimento</b>, estudante de Engenharia
+Ambiental e Sanitária do IFCE — campus Maracanaú.<br>
+LinkedIn: <a href="https://www.linkedin.com/in/caio-henrique-6a6650236">www.linkedin.com/in/caio-henrique-6a6650236</a></p>
+
+<h2>Sumário</h2>
+<ol>
+  <li><a href="#apresentacao">Apresentação</a></li>
+  <li><a href="#interface">A tela do programa</a></li>
+  <li><a href="#desenho">Navegação e ferramentas de desenho</a></li>
+  <li><a href="#rede">Montando a rede</a></li>
+  <li><a href="#edicao">Propriedades e tabela de elementos</a></li>
+  <li><a href="#demandas">Demandas: projeção populacional e consumos nodais</a></li>
+  <li><a href="#validacao">Validação</a></li>
+  <li><a href="#simulacao">Simulação hidráulica</a></li>
+  <li><a href="#otimizacao">Otimização de diâmetros</a></li>
+  <li><a href="#cenarios">Cenários</a></li>
+  <li><a href="#saidas">Planilhas, relatórios e arquivos EPANET</a></li>
+  <li><a href="#dxf">Exportação DXF: plantas de cálculo e de execução</a></li>
+  <li><a href="#cli">Linha de comando</a></li>
+  <li><a href="#atalhos">Atalhos de teclado</a></li>
+  <li><a href="#arquivos">Arquivos do projeto</a></li>
+</ol>
+
+<a name="apresentacao"></a>
+<h2>1. Apresentação</h2>
+<p>O HidroPy reúne, num só programa, o desenho e a análise de redes de distribuição de água:</p>
+<ul>
+  <li>desenho da rede sobre uma base topográfica em DXF, com coordenadas reais;</li>
+  <li>cadastro de junções, reservatórios, tanques, tubulações, bombas e válvulas;</li>
+  <li>projeção populacional e cálculo dos consumos nodais pelo método linear;</li>
+  <li>simulação hidráulica com o motor EPANET, em regime permanente ou período estendido;</li>
+  <li>otimização econômica dos diâmetros por algoritmo genético, respeitando pressões e
+      velocidades;</li>
+  <li>mapas temáticos, gráficos, planilhas, relatórios em PDF e plantas DXF de cálculo e de
+      execução, com as peças de conexão.</li>
+</ul>
+<p>Todo o trabalho fica num arquivo de projeto <code>.shcad</code>, que guarda o desenho, a
+rede, os cenários e os resultados.</p>
+
+<a name="interface"></a>
+<h2>2. A tela do programa</h2>
+<ul>
+  <li><b>Área de desenho</b> (centro): onde a rede é desenhada e os resultados são exibidos.</li>
+  <li><b>Rede</b> (esquerda): árvore com nós, ligações, controles, curvas, padrões, cenários e
+      resultados. Clicar num item seleciona o elemento no desenho; duplo clique aproxima a vista.</li>
+  <li><b>Propriedades</b> e <b>Camadas</b> (direita): dados do elemento selecionado e controle das
+      camadas.</li>
+  <li><b>Resultados</b> (direita): mapas temáticos, instante da simulação, tabelas e gráficos.</li>
+  <li><b>Validação</b>, <b>Log de execução</b> e <b>Tabela de elementos</b> (abaixo).</li>
+  <li><b>Coordenada</b> (rodapé): campo para digitar pontos com precisão.</li>
+  <li><b>Barra de status</b>: coordenadas do cursor, tipo de snap, escala, número de elementos,
+      situação do projeto e da simulação, progresso dos cálculos e botão para cancelar.</li>
+</ul>
+<p>Os painéis podem ser movidos, agrupados em abas ou fechados; para reabri-los, use o menu
+<b>Visualizar</b>.</p>
+
+<a name="desenho"></a>
+<h2>3. Navegação e ferramentas de desenho</h2>
+<h3>Navegação</h3>
+<ul>
+  <li><b>Zoom:</b> roda do mouse (centrado no cursor). <b>Home</b> enquadra toda a rede;
+      duplo clique com o botão do meio faz o mesmo.</li>
+  <li><b>Pan:</b> arraste com o botão do meio, em qualquer ferramenta.</li>
+  <li><b>Seleção:</b> clique num elemento; Shift ou Ctrl adicionam à seleção. Arrastando da
+      esquerda para a direita, seleciona o que estiver inteiro dentro da janela; da direita para a
+      esquerda, tudo o que a janela tocar. <b>Esc</b> limpa a seleção.</li>
+</ul>
+<h3>Snap e coordenadas</h3>
+<p>O cursor se prende a nós, extremidades, pontos médios, centros, interseções e à grade
+(F3 liga/desliga o snap a objetos, F9 o snap à grade e F7 a grade). O tipo de snap aparece na
+barra de status.</p>
+<p>No campo <b>Coordenada</b> do rodapé, digite e tecle Enter:</p>
+<table>
+  <tr><th>Formato</th><th>Significado</th></tr>
+  <tr><td><code>x,y</code></td><td>ponto absoluto (ex.: <code>350120.5,7400310</code>)</td></tr>
+  <tr><td><code>@dx,dy</code></td><td>deslocamento a partir do último ponto</td></tr>
+  <tr><td><code>@distância&lt;ângulo</code></td><td>coordenada polar a partir do último ponto</td></tr>
+</table>
+<h3>Ferramentas de desenho (menu Desenhar)</h3>
+<p>Linha, polilinha (Enter ou duplo clique termina; C fecha), retângulo, círculo, arco por três
+pontos, texto, cota e medição de distâncias. O desenho vai para a <b>camada atual</b>, escolhida
+no painel Camadas.</p>
+<h3>Edição</h3>
+<ul>
+  <li><b>Mover:</b> arraste um elemento selecionado, ou use Ctrl+M para informar o deslocamento.</li>
+  <li><b>Rotacionar</b> (Ctrl+R), informando ângulo e centro, e <b>Espelhar</b> (menu Editar),
+      com opção de manter o original.</li>
+  <li><b>Copiar</b> (Ctrl+C) e <b>Colar no cursor</b> (Ctrl+V); <b>Excluir</b> (Del).</li>
+  <li><b>Desfazer</b> (Ctrl+Z) e <b>Refazer</b> (Ctrl+Y) valem para todas as edições.</li>
+  <li>O botão direito do mouse sobre uma seleção abre um menu com as ações mais usadas.</li>
+</ul>
+<h3>Camadas e base topográfica</h3>
+<p>Em <b>Arquivo → Importar DXF</b> escolha as camadas a importar e quais serão apenas
+referência (bloqueadas, para não serem alteradas por engano). As coordenadas originais são
+mantidas. No painel Camadas é possível criar, renomear, ocultar, bloquear e mudar a cor e a
+espessura de cada camada.</p>
+
+<a name="rede"></a>
+<h2>4. Montando a rede</h2>
+<h3>Elementos</h3>
+<table>
+  <tr><th>Ferramenta</th><th>Tecla</th><th>Como usar</th></tr>
+  <tr><td>Tubulação</td><td>P</td><td>Clique no nó inicial (ou em vazio para criar uma junção),
+      clique para criar vértices e termine clicando num nó. Duplo clique ou Enter terminam
+      criando uma junção.</td></tr>
+  <tr><td>Junção</td><td>J</td><td>Clique para inserir. Sobre uma tubulação, o programa pergunta se
+      ela deve ser dividida e conectada.</td></tr>
+  <tr><td>Reservatório / Tanque</td><td>R / T</td><td>Clique para inserir.</td></tr>
+  <tr><td>Bomba / Válvula</td><td>B / V</td><td>Clique no nó de sucção (montante) e depois no de
+      recalque (jusante).</td></tr>
+  <tr><td>Dividir tubulação</td><td>—</td><td>Clique sobre a tubulação para inserir uma junção.</td></tr>
+</table>
+<p>Nenhuma conexão é criada sem confirmação: se um ponto cai sobre uma tubulação existente, o
+programa pergunta antes de dividi-la.</p>
+<h3>Unir nós</h3>
+<p>Arraste um nó e solte-o sobre outro: um anel "unir a…" indica o destino. Após a confirmação,
+o nó em que você soltou é mantido com todos os seus dados e recebe as ligações do nó arrastado,
+que é excluído. Ctrl+Z desfaz a união.</p>
+<h3>Trechos existentes</h3>
+<p>Para indicar trechos já executados, selecione as tubulações e use <b>Rede hidráulica → Marcar
+trechos selecionados como existentes</b> (Ctrl+Shift+E). Eles aparecem tracejados, ficam num grupo
+próprio na árvore e não têm o diâmetro alterado pela otimização nem entram no custo. Para
+desfazer a marcação, use <b>Marcar como projetados</b> (Ctrl+Shift+P).</p>
+<h3>Curvas, padrões e controles</h3>
+<p>No menu <b>Rede hidráulica</b>:</p>
+<ul>
+  <li><b>Curvas:</b> curvas de bomba (vazão × altura), de rendimento, de volume de tanque e de
+      perda de carga, com pontos digitados ou importados de CSV;</li>
+  <li><b>Padrões temporais:</b> multiplicadores de demanda ou de carga por intervalo de tempo;</li>
+  <li><b>Controles:</b> abrir, fechar ou ajustar uma ligação por horário ou pelo nível/pressão de um
+      nó.</li>
+</ul>
+<h3>Aproveitando desenhos e redes existentes</h3>
+<ul>
+  <li><b>Converter entidades CAD em tubulações:</b> selecione linhas ou polilinhas do DXF e use o
+      comando do menu Rede hidráulica. É possível definir a tolerância para unir extremidades, o
+      diâmetro, a rugosidade, o material e marcar os trechos como existentes. O resumo mostra as
+      tubulações e junções que serão criadas antes de confirmar.</li>
+  <li><b>Importar rede EPANET (.inp):</b> menu Arquivo. Os valores são convertidos para L/s, m e mm.</li>
+</ul>
+
+<a name="edicao"></a>
+<h2>5. Propriedades e tabela de elementos</h2>
+<p>O painel <b>Propriedades</b> mostra os dados do elemento selecionado. Com vários elementos do
+mesmo tipo selecionados, a alteração vale para todos (edição em lote).</p>
+<p>Nas tubulações, o <b>comprimento automático</b> acompanha o desenho; desligado, permite
+informar um comprimento hidráulico diferente do comprimento em planta. Também há a opção
+<b>Distribui vazão</b>, usada no cálculo dos consumos nodais, e a marcação de trecho existente.
+Alterar o diâmetro de um trecho existente pede confirmação.</p>
+<p>A <b>Tabela de elementos</b> lista todos os elementos de um tipo, com ordenação por coluna,
+pesquisa, edição direta nas células, edição em lote e exportação para Excel ou CSV.</p>
+
+<a name="demandas"></a>
+<h2>6. Demandas</h2>
+<h3>Projeção populacional (Demandas → Projeção populacional)</h3>
+<p>Informe os censos (ano e população; é possível colar do Excel), o ano inicial do plano, o ano
+de alcance e o passo da tabela. Os coeficientes são calculados a partir do primeiro e do último
+censo ou dos dois últimos:</p>
+<ul>
+  <li><b>Aritmético:</b> Ka = (P<sub>1</sub> − P<sub>0</sub>) / (t<sub>1</sub> − t<sub>0</sub>);
+      P(t) = P<sub>0</sub> + Ka·(t − t<sub>0</sub>)</li>
+  <li><b>Geométrico:</b> Kg = (ln P<sub>1</sub> − ln P<sub>0</sub>) / (t<sub>1</sub> − t<sub>0</sub>);
+      P(t) = P<sub>0</sub>·e<sup>Kg·(t − t<sub>0</sub>)</sup></li>
+</ul>
+<p>A tabela e o gráfico mostram os dois métodos. Escolha o método adotado e clique em
+<b>Salvar no projeto e adotar</b>. Vários estudos podem ser guardados no mesmo projeto.</p>
+<h3>Consumos nodais pelo método linear (Demandas → Consumos nodais)</h3>
+<p>A vazão total é distribuída pelos nós proporcionalmente à extensão de rede:</p>
+<ul>
+  <li>Q = P · q · K1 · K2 / 86400 (L/s), com q em L/hab·dia;</li>
+  <li>vazão linear qm = Q / L, sendo L a extensão das tubulações que distribuem vazão;</li>
+  <li>demanda de cada junção = qm × metade do comprimento de cada tubulação ligada a ela (quando a
+      outra extremidade é um reservatório ou tanque, o trecho inteiro vai para a junção).</li>
+</ul>
+<p>A população vem da projeção adotada (ano e método podem ser alterados) ou pode ser informada
+manualmente. K1 e K2 podem ser aplicados ou não. Antes de qualquer alteração aparece um resumo,
+nó a nó, com os botões <b>Aplicar</b> e <b>Cancelar</b>. Para adutoras e trechos sem ligações
+prediais, desligue a propriedade <b>Distribui vazão</b> da tubulação.</p>
+
+<a name="validacao"></a>
+<h2>7. Validação (F4)</h2>
+<p>Verifica a rede antes dos cálculos e separa <b>erros</b>, que impedem a execução, de
+<b>advertências</b>. São verificados, entre outros: identificadores vazios ou repetidos,
+tubulações sem nós, nós desconectados, diâmetros e comprimentos inválidos, níveis de tanques,
+curvas de bomba incompletas, padrões e curvas inexistentes, nós coincidentes e nós que tocam uma
+tubulação sem estar conectados a ela. Duplo clique numa linha localiza o elemento no desenho.</p>
+
+<a name="simulacao"></a>
+<h2>8. Simulação hidráulica (F5)</h2>
+<p>Em <b>Simulação → Opções</b> defina a duração (0 para regime permanente), os passos de tempo,
+a fórmula de perda de carga (Hazen-Williams, Darcy-Weisbach ou Chezy-Manning), o multiplicador
+de demanda e os limites de pressão e velocidade usados nas verificações.</p>
+<p>A simulação roda em segundo plano e pode ser cancelada. Ao terminar, o painel
+<b>Resultados</b> oferece:</p>
+<ul>
+  <li><b>mapas temáticos</b> nos nós (pressão, carga, demanda, nível) e nas ligações (vazão,
+      velocidade, perda de carga, estado, diâmetro), com legenda e faixas configuráveis;</li>
+  <li>destaque dos elementos fora dos limites de pressão e velocidade;</li>
+  <li>seleção do <b>instante</b> em simulações de período estendido;</li>
+  <li>tabelas de nós e trechos e <b>gráfico temporal</b> do elemento selecionado;</li>
+  <li>resumo das restrições não atendidas e das mensagens do EPANET.</li>
+</ul>
+<p>No menu <b>Visualizar</b> é possível exibir nomes, diâmetros, pressões, vazões, velocidades e
+setas de sentido de escoamento. Os tanques mostram o nível no próprio símbolo.</p>
+
+<a name="otimizacao"></a>
+<h2>9. Otimização de diâmetros (F6)</h2>
+<p>A otimização procura a combinação de diâmetros comerciais de menor custo que atenda às
+pressões mínima e máxima e à velocidade máxima, usando um algoritmo genético que simula a rede
+a cada avaliação. Em <b>Otimização → Configurar</b> é possível ajustar:</p>
+<ul>
+  <li>tamanho da população, número de gerações, probabilidades de cruzamento e mutação, semente e
+      critério de parada;</li>
+  <li>limites de pressão e velocidade e a tolerância de pressão;</li>
+  <li>o catálogo de diâmetros candidatos e o custo por metro de cada DN, e a faixa de DN
+      permitida.</li>
+</ul>
+<p>Ao final, a janela de resultado mostra o custo, se a solução é viável e uma comparação trecho a
+trecho (diâmetro original × otimizado, custo, velocidade e perda de carga) e nó a nó (pressões
+antes e depois). Você escolhe entre:</p>
+<ul>
+  <li><b>Visualizar no desenho</b>, sem modificar a rede (mapa de alteração de diâmetros);</li>
+  <li><b>Aplicar os diâmetros</b> ao projeto atual (pode ser desfeito);</li>
+  <li><b>Criar um cenário otimizado</b>, mantendo a rede original intacta.</li>
+</ul>
+<p>Trechos marcados como existentes nunca têm o diâmetro alterado. Depois de aplicar os
+diâmetros, execute uma nova simulação para obter os resultados da rede modificada.</p>
+
+<a name="cenarios"></a>
+<h2>10. Cenários</h2>
+<p>Em <b>Rede hidráulica → Cenários</b> é possível criar cópias da rede para estudar alternativas
+(demandas futuras, novas bombas, rede otimizada…) sem perder a configuração original. Cada
+cenário guarda a própria rede e os próprios resultados; o desenho de base é comum a todos. Para
+trocar de cenário, use o diálogo ou dê duplo clique no cenário na árvore.</p>
+
+<a name="saidas"></a>
+<h2>11. Planilhas, relatórios e arquivos EPANET</h2>
+<ul>
+  <li><b>Exportar resultados de nós e trechos</b> (Ctrl+E): planilha Excel com as abas Nós
+      (identificador, coordenadas, cota, demanda, pressão e carga) e Trechos (vazão, comprimento,
+      diâmetro, rugosidade, material, velocidade, perda de carga, fator de atrito e estado), do
+      instante selecionado ou de todos os instantes. Também em CSV.</li>
+  <li><b>Gerar relatório</b> (menu Resultados): PDF ou HTML com cadastro, resultados, otimização,
+      restrições não atendidas, validação e projeção populacional.</li>
+  <li><b>Exportar rede EPANET (.inp)</b> (menu Arquivo): para abrir a rede no EPANET.</li>
+</ul>
+
+<a name="dxf"></a>
+<h2>12. Exportação DXF (Arquivo → Exportar DXF)</h2>
+<p>A altura dos textos define também a escala dos símbolos e das peças. O desenho de base pode
+ser incluído ou não.</p>
+<h3>Planta de cálculo</h3>
+<p>Marque as informações que devem aparecer junto a cada trecho (identificador, DN, comprimento,
+material, rugosidade, vazão, velocidade, perda de carga unitária e total, fator de atrito, estado)
+e a cada nó (identificador, cota, demanda, pressão, carga hidráulica), além das setas de sentido
+de escoamento.</p>
+<h3>Planta de execução</h3>
+<p>Gera as peças de conexão de cada junção e de cada vértice das tubulações, em três etapas:</p>
+<ol>
+  <li><b>Critérios:</b> deflexão absorvida pela junta, comprimento mínimo de segmento, tipo de
+      extremidade das peças, curvas nos vértices, CAP nas pontas de rede, tipo de chamada
+      (multileader, leader ou linhas), quadro de quantidades e rótulos dos trechos.</li>
+  <li><b>Analisar conexões:</b> tabela com as peças de cada ponto e as observações para conferência.</li>
+  <li><b>Exportar:</b> cada peça é inserida no ponto, alinhada aos trechos, com uma chamada
+      indicando peças, material e diâmetros, e o quadro <i>Relação de conexões</i>.</li>
+</ol>
+<p>As peças usadas são tê, cruzeta, curvas de 90°, 45°, 22°30' e 11°15', reduções e CAP. Para
+deflexões que não correspondem a uma curva comercial, o programa escolhe a combinação mais
+próxima e indica a diferença na chamada. No modo automático de extremidades, a peça que encaixa
+diretamente em outra recebe ponta desse lado (por exemplo, a curva ligada à derivação de um tê);
+as demais extremidades são bolsas.</p>
+
+<a name="cli"></a>
+<h2>13. Linha de comando</h2>
+<p>As operações principais também podem ser executadas sem abrir a janela, o que permite
+automatizá-las:</p>
+<p><code>HidroPy.exe cli &lt;comando&gt; projeto.shcad [opções] [--json]</code></p>
+<p>Comandos: <code>info</code>, <code>validar</code>, <code>simular</code>, <code>otimizar</code>,
+<code>comparar</code>, <code>aplicar-otimizacao</code>, <code>ativar-cenario</code>,
+<code>exportar-dxf</code>, <code>planilha</code>, <code>relatorio</code> e <code>importar</code>.
+Use <code>HidroPy.exe cli &lt;comando&gt; --help</code> para ver as opções de cada um. Com
+<code>--json</code>, o resultado é um resumo em JSON.</p>
+
+<a name="atalhos"></a>
+<h2>14. Atalhos de teclado</h2>
+<table>
+  <tr><th>Ação</th><th>Atalho</th><th>Ação</th><th>Atalho</th></tr>
+  <tr><td>Novo / Abrir / Salvar</td><td>Ctrl+N / Ctrl+O / Ctrl+S</td>
+      <td>Importar DXF</td><td>Ctrl+I</td></tr>
+  <tr><td>Desfazer / Refazer</td><td>Ctrl+Z / Ctrl+Y</td>
+      <td>Copiar / Colar</td><td>Ctrl+C / Ctrl+V</td></tr>
+  <tr><td>Excluir</td><td>Del</td><td>Selecionar tudo</td><td>Ctrl+A</td></tr>
+  <tr><td>Mover / Rotacionar</td><td>Ctrl+M / Ctrl+R</td>
+      <td>Enquadrar tudo / seleção</td><td>Home / Ctrl+Home</td></tr>
+  <tr><td>Selecionar (limpar seleção)</td><td>Esc</td><td>Tubulação</td><td>P</td></tr>
+  <tr><td>Junção / Reservatório / Tanque</td><td>J / R / T</td>
+      <td>Bomba / Válvula</td><td>B / V</td></tr>
+  <tr><td>Linha / Polilinha</td><td>L / Shift+L</td>
+      <td>Retângulo / Círculo / Arco</td><td>Shift+R / Shift+C / Shift+A</td></tr>
+  <tr><td>Texto / Cota / Medir</td><td>Shift+T / Shift+D / M</td>
+      <td>Grade / Snap grade / Snap objetos</td><td>F7 / F9 / F3</td></tr>
+  <tr><td>Validar / Simular / Otimizar</td><td>F4 / F5 / F6</td>
+      <td>Exportar resultados</td><td>Ctrl+E</td></tr>
+  <tr><td>Marcar existentes / projetados</td><td>Ctrl+Shift+E / Ctrl+Shift+P</td>
+      <td>Sair</td><td>Ctrl+Q</td></tr>
+</table>
+
+<a name="arquivos"></a>
+<h2>15. Arquivos do projeto</h2>
+<ul>
+  <li><b>.shcad</b> — arquivo do projeto, com desenho, rede, cenários, resultados, estudos de
+      população e configurações. A cada gravação, a versão anterior é guardada como
+      <code>.shcad.bak</code>.</li>
+  <li>O programa avisa sobre alterações não salvas ao fechar ou abrir outro projeto.</li>
+  <li>Os registros de execução ficam em <code>%LOCALAPPDATA%\HidroPy\logs</code>
+      (Ferramentas → Abrir arquivo de log).</li>
+</ul>
+
+<hr>
+<p><b>HidroPy</b> — simulador hidráulico baseado em Python.<br>
+Criado por Caio Henrique de Oliveira Nascimento, estudante de Engenharia Ambiental e Sanitária
+do IFCE — campus Maracanaú.<br>
+<a href="https://www.linkedin.com/in/caio-henrique-6a6650236">www.linkedin.com/in/caio-henrique-6a6650236</a></p>
+
+</body>
+</html>
