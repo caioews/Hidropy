@@ -77,7 +77,7 @@ class Ctx:
         self.original_opt = project.opt_settings
 
 
-def load_input(path: str) -> Ctx:
+def load_input(path: str, fix_inp: bool = False) -> Ctx:
     from .hydraulics.project import Project
     from .hydraulics.project_io import ProjectFormatError, load_project
     if not path:
@@ -92,12 +92,25 @@ def load_input(path: str) -> Ctx:
         except ProjectFormatError as e:
             raise CliError(f'Projeto inválido: {e}') from e
     if ext == '.inp':
+        from .integration.inp_check import InpError, check_inp, prepare
         from .integration.inp_importer import import_inp
+        try:
+            chk = check_inp(path)
+        except InpError as e:
+            raise CliError(f'Arquivo .inp inválido: {e}') from e
+        if chk.issues and not fix_inp:
+            raise CliError('O .inp tem problemas que impedem a leitura (use --corrigir-inp para '
+                           'corrigir numa cópia; o original não é alterado):\n' + chk.summary())
+        warns_pre = list(chk.warnings)
+        if chk.converted:
+            warns_pre.append(f'Codificação {chk.encoding_label} convertida para UTF-8.')
+        warns_pre += [f'Corrigido (linha {i.line}): {i.message}' for i in chk.issues]
         p = Project()
         try:
-            net, warns = import_inp(path, p)
+            net, warns = import_inp(prepare(chk, apply_fixes=fix_inp), p)
         except Exception as e:
             raise CliError(f'Falha ao ler o .inp: {e}') from e
+        warns = warns_pre + list(warns)
         p.network = net
         p.meta['title'] = os.path.splitext(os.path.basename(path))[0]
         p.meta['external_files'] = [path]
@@ -972,6 +985,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help='máximo de itens listados (ids, problemas)')
     common.add_argument('--saida', help='arquivo de saída (.shcad, .dxf, .xlsx/.csv, '
                                         '.html/.pdf conforme o comando)')
+    common.add_argument('--corrigir-inp', action='store_true',
+                        help='corrige problemas do .inp (palavras traduzidas, vírgula decimal) '
+                             'numa cópia antes de ler; o original não é alterado')
     common.add_argument('--ignorar-validacao', action='store_true',
                         help='calcula mesmo com erros de validação')
 
@@ -1087,7 +1103,7 @@ def main(argv: list[str] | None = None) -> int:
         fn = COMMANDS[a.comando][0]
         # bibliotecas que escrevem no stdout não podem corromper o JSON
         with contextlib.redirect_stdout(sys.stderr):
-            ctx = load_input(a.arquivo)
+            ctx = load_input(a.arquivo, getattr(a, 'corrigir_inp', False))
             payload['arquivo'] = ctx.path
             data, code = fn(ctx, a)
         payload.update(data)

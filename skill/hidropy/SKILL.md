@@ -26,6 +26,10 @@ python main.py cli <comando> "<projeto.shcad | rede.inp>" [opções] --json
 - Versão executável: `HidroPy.exe cli ...` com os mesmos argumentos (no código-fonte,
   `python main.py cli`).
 - Ajuda: `python main.py cli --help`, `python main.py cli otimizar --help`.
+- Entrada `.inp`: arquivos em ANSI são convertidos sozinhos. Se o comando falhar listando
+  palavras traduzidas (ex.: `Metros`) ou vírgula decimal, mostre as linhas ao usuário e, com a
+  autorização dele, repita com `--corrigir-inp` (corrige numa cópia; o original não muda).
+  Arquivo corrompido ou binário do EPANET não tem correção: peça um `.inp` exportado de novo.
 - Esquema completo do JSON: `docs/CLI.md` do repositório.
 
 | Comando | Para quê |

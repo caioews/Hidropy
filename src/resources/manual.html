@@ -156,7 +156,13 @@ desfazer a marcação, use <b>Marcar como projetados</b> (Ctrl+Shift+P).</p>
       comando do menu Rede hidráulica. É possível definir a tolerância para unir extremidades, o
       diâmetro, a rugosidade, o material e marcar os trechos como existentes. O resumo mostra as
       tubulações e junções que serão criadas antes de confirmar.</li>
-  <li><b>Importar rede EPANET (.inp):</b> menu Arquivo. Os valores são convertidos para L/s, m e mm.</li>
+  <li><b>Importar rede EPANET (.inp):</b> menu Arquivo. Os valores são convertidos para L/s, m e
+      mm. Arquivos gravados em ANSI (padrão do EPANET no Windows) são convertidos automaticamente
+      para UTF-8. Se o arquivo tiver palavras-chave traduzidas para o português (por exemplo,
+      "Metros" em vez de "METERS") ou números com vírgula decimal, o programa mostra os problemas
+      e pede autorização para corrigi-los. Arquivos corrompidos, ou o projeto binário do EPANET
+      salvo como .inp, são identificados e não são importados. O arquivo original nunca é
+      alterado.</li>
 </ul>
 
 <a name="edicao"></a>

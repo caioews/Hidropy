@@ -37,7 +37,14 @@ opções salvas no projeto não mudam, mas a configuração usada fica guardada 
 
 Opções comuns: `--cenario NOME|uid` (padrão: o ativo), `--saida`, `--timeout s`, `-v` (todo o
 log do cálculo no stderr; sem ele, uma linha de progresso a cada 15 s), `--max N` (itens
-listados), `--ignorar-validacao`.
+listados), `--ignorar-validacao`, `--corrigir-inp`.
+
+**Entrada `.inp`.** O arquivo é verificado antes da leitura: ANSI, UTF-16 e UTF-8 com BOM são
+convertidos para UTF-8 automaticamente (aviso em `avisos_importacao`). Arquivo corrompido ou
+projeto binário do EPANET salvo como `.inp` encerra com código `2` e a explicação em `erro`.
+Palavras-chave traduzidas (ex.: `UNITS Metros` no `[BACKDROP]`) e números com vírgula decimal
+encerram com código `2` listando as linhas; com `--corrigir-inp` elas são corrigidas numa cópia
+(o original não muda) e cada correção aparece em `avisos_importacao`.
 
 **Gravação segura.** Os comandos que gravam releem o `.shcad` do disco sob trava
 (`<projeto>.shcad.lock`), aplicam só a sua alteração e salvam (com `.bak`); antes conferem

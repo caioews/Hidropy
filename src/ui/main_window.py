@@ -567,12 +567,53 @@ class MainWindow(QMainWindow):
         from .dialogs.dxf_export_dialog import DxfExportDialog
         DxfExportDialog(self.ctrl, self.canvas.theme.time_index, self).exec()
 
+    def _prepare_inp(self, path):
+        """Verifica o .inp, converte para UTF-8 e pede autorização para corrigir problemas.
+        Devolve o caminho da cópia a importar, ou None se a importação foi interrompida."""
+        from ..integration.inp_check import InpError, check_inp, prepare
+        name = os.path.basename(path)
+        try:
+            chk = check_inp(path)
+        except InpError as e:
+            QMessageBox.critical(self, 'Arquivo .inp inválido',
+                                 f'Não é possível importar "{name}".\n\n{e}')
+            return None
+        if chk.converted:
+            self.logw.appendPlainText(f'{name}: codificação {chk.encoding_label} convertida para '
+                                      'UTF-8 (o arquivo original não foi alterado).')
+        for w in chk.warnings:
+            self.logw.appendPlainText(f'Aviso ({name}): {w}')
+        if not chk.issues:
+            return prepare(chk, apply_fixes=False)
+        box = QMessageBox(QMessageBox.Warning, 'Problemas no arquivo .inp',
+                          f'O arquivo "{name}" tem {len(chk.issues)} problema(s) que impedem a '
+                          'leitura pelo EPANET, como palavras-chave traduzidas para o '
+                          'português ou números com vírgula decimal.\n\n'
+                          f'{chk.summary(8)}\n\n'
+                          'Deseja corrigir e importar? O arquivo original não será alterado.',
+                          parent=self)
+        box.setDetailedText('\n'.join(f'Linha {i.line}:\n  antes:  {i.original}\n  depois: '
+                                      f'{i.fixed}' for i in chk.issues))
+        fix = box.addButton('Corrigir e importar', QMessageBox.AcceptRole)
+        box.addButton(QMessageBox.Cancel)
+        box.setDefaultButton(fix)
+        box.exec()
+        if box.clickedButton() is not fix:
+            self.st_msg.setText('Importação cancelada: o arquivo .inp não foi corrigido.')
+            return None
+        for i in chk.issues:
+            self.logw.appendPlainText(f'Corrigido ({name}, linha {i.line}): {i.message}')
+        return prepare(chk, apply_fixes=True)
+
     def import_inp(self, path=None):
         from ..integration.inp_importer import import_inp
         if not path:
             path, _ = QFileDialog.getOpenFileName(self, 'Importar rede EPANET', '',
                                                   'EPANET (*.inp)')
         if not path:
+            return
+        prepared = self._prepare_inp(path)
+        if prepared is None:
             return
         p = self.ctrl.project
         if p.network.nodes and QMessageBox.question(
@@ -581,9 +622,10 @@ class MainWindow(QMainWindow):
                 != QMessageBox.Yes:
             return
         try:
-            net, warns = import_inp(path, p)
+            net, warns = import_inp(prepared, p)
         except Exception as e:
-            QMessageBox.critical(self, 'Importar .inp', f'Falha ao ler o arquivo:\n{e}')
+            QMessageBox.critical(self, 'Importar .inp',
+                                 f'Não foi possível ler a rede do arquivo:\n{e}')
             return
         changes = editing.delete(p, [e.uid for e in p.network.elements()])
         changes += editing.add(list(net.elements()))
